@@ -34,6 +34,17 @@ public class JWTUtility {
         }
         return instance;
     }
+
+        public String generateToken(String username) {
+        Date now = new Date();
+        Date expiryDate = new Date(now.getTime() + expirationMs);
+        return Jwts.builder()
+                .setSubject(username)
+                .setIssuedAt(now)
+                .setExpiration(expiryDate)
+                .signWith(getSigningKey(),SignatureAlgorithm.HS512)
+                .compact();
+    }
     public  String generateToken(String username, String role) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationMs);
