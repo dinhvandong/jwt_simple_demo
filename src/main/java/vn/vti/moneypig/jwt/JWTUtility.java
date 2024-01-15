@@ -1,11 +1,19 @@
 package vn.vti.moneypig.jwt;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.util.StringUtils;
+
 import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
+import java.net.URLDecoder;
+import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Date;
 public class JWTUtility {
-    private static final SecretKey SECRET_KEY = Keys.secretKeyFor(SignatureAlgorithm.HS512);
-    long expirationMs = 24 * 60 * 60 * 1000; // One day
+   final long expirationMs = 24 * 60 * 60 * 1000; // One day
+   final String secret = "AGIUPVIEC38271980371248973242139847231047238473294712039487321948703";
+  final SecretKey secretKey = new SecretKeySpec(secret.getBytes(StandardCharsets.UTF_8), SignatureAlgorithm.HS512.getJcaName());
     private static JWTUtility instance;
     // Private constructor to prevent instantiation from outside the class
     private JWTUtility() {
@@ -26,23 +34,35 @@ public class JWTUtility {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationMs);
             return Jwts.builder()
-                .setSubject(username)
-                .setIssuedAt(now)
-                .setExpiration(expiryDate)
-                .signWith(SECRET_KEY)
-                .compact();
+                    .setSubject(username).setIssuedAt(now)
+                    .setExpiration(expiryDate)
+                    .signWith(secretKey)
+                    .compact();
     }
     public  Claims parseToken(String token) {
-        Jws<Claims> jws;
-        try {
-            jws = Jwts.parserBuilder()
-                    .setSigningKey(SECRET_KEY)
-                    .build()
-                    .parseClaimsJws(token);
-        } catch (Exception e) {
-            // Handle invalid token or signature exception
-            return null;
+
+        String tokenFix = token.replace("Bearer ", "");
+        // Generate the secret key for HS512
+        // Parse the JWT token
+        System.out.println("TOKEN::AXXXB:"+ tokenFix);
+        return Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build()
+                .parseClaimsJws(tokenFix)
+                .getBody();
+    }
+    public String extractTokenFromRequest(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7); // Remove "Bearer " prefix
         }
-        return jws.getBody();
+        return null;
+    }
+
+    public  String extractUsername(String token) {
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(secretKey)
+                .build().parseClaimsJws(token).getBody();
+        return claims.getSubject();
     }
 }

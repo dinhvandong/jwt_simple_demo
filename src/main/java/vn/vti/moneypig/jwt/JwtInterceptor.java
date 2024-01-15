@@ -1,24 +1,47 @@
 package vn.vti.moneypig.jwt;
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.HandlerInterceptor;
+
+import java.security.Key;
 import java.util.Date;
 
 public class JwtInterceptor implements HandlerInterceptor {
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String TOKEN_PREFIX = "Bearer ";
+
+
+    private static JwtInterceptor instance;
+    // Private constructor to prevent instantiation from outside the class
+    public JwtInterceptor() {
+    }
+    // Method to get the singleton instance
+    public static JwtInterceptor getInstance() {
+        if (instance == null) {
+            synchronized (JwtInterceptor.class) {
+                if (instance == null) {
+                    instance = new JwtInterceptor();
+                }
+            }
+        }
+        return instance;
+    }
     @Override
     public boolean preHandle(HttpServletRequest  request, HttpServletResponse response, Object handler) throws Exception {
         String token = extractTokenFromRequest(request);
         System.out.println("TOKEN EXTRACT:"+ token);
-        if (token == null || token.isEmpty() || isValidToken(token)) {
+        if (token == null || token.isEmpty() || !isValidToken(token)) {
             response.sendError(HttpStatus.UNAUTHORIZED.value(), "Missing or invalid token");
             return false;
         }
         try {
-            Claims claims = JWTUtility.getInstance().parseToken(token);
+            Claims claims =  JWTUtility.getInstance().parseToken(token);
+            System.out.println("Subject: " + claims.getSubject());
             // You can perform additional validation or processing with the claims here
             // Add the claims to the request attributes to make them accessible to other components
             request.setAttribute("claims", claims);
@@ -30,7 +53,7 @@ public class JwtInterceptor implements HandlerInterceptor {
 
     }
 
-    private String extractTokenFromRequest(HttpServletRequest request) {
+    public String extractTokenFromRequest(HttpServletRequest request) {
         String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
         if (bearerToken != null && bearerToken.startsWith(TOKEN_PREFIX)) {
             return bearerToken.substring(TOKEN_PREFIX.length());
@@ -38,15 +61,30 @@ public class JwtInterceptor implements HandlerInterceptor {
         return null;
     }
 
+    public  String extractUsername(String token) {
+        try {
+            Claims claims =  JWTUtility.getInstance().parseToken(token);
+            System.out.println("Claims:"+ claims.getSubject());
+            return  claims.getSubject();
+        } catch (Exception e) {
+            return null; // Token is invalid
+        }
+    }
+
         public  boolean isValidToken(String token) {
         try {
             System.out.println("Token0:"+ token);
-           Claims claims =  JWTUtility.getInstance().parseToken(token);
+            Claims claims =  JWTUtility.getInstance().parseToken(token);
             Date expirationDate = claims.getExpiration();
+            if(claims==null){
+                System.out.println("Claims null");
+            }else {
+                System.out.println(claims.getSubject());
+            }
             Date currentDate = new Date();
-            System.out.println("Token:"+ token);
+            System.out.println("Token:"+   (expirationDate == null || !expirationDate.before(currentDate))); // Token has expired;
             // Check if the token has expired
-            return expirationDate == null || !expirationDate.before(currentDate); // Token has expired
+            return (expirationDate == null || !expirationDate.before(currentDate)); // Token has expired
             // Token is valid and not expired
         } catch (Exception e) {
             return false; // Token is invalid

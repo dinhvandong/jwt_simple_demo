@@ -7,11 +7,9 @@ import java.security.NoSuchAlgorithmException;
 
 public class PasswordEncoder {
     private static PasswordEncoder instance;
-
     // Private constructor to prevent instantiation from outside the class
     public PasswordEncoder() {
     }
-
     // Method to get the singleton instance
     public static PasswordEncoder getInstance() {
         if (instance != null) {
@@ -35,10 +33,6 @@ public class PasswordEncoder {
     }
 
     public   boolean matches(String raw, String hasPassword){
-        System.out.println("RawPassword:"+ (raw));
-        System.out.println("HashPassword:"+ hasPassword);
-
-        System.out.println("EncodePassword:"+ encodePassword(raw));
         return encodePassword(raw).equals(hasPassword);
     }
     public  String bytesToHex(byte[] bytes) {
