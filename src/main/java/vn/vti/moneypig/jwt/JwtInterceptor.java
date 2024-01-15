@@ -34,14 +34,12 @@ public class JwtInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest  request, HttpServletResponse response, Object handler) throws Exception {
         String token = extractTokenFromRequest(request);
-        System.out.println("TOKEN EXTRACT:"+ token);
         if (token == null || token.isEmpty() || !isValidToken(token)) {
             response.sendError(HttpStatus.UNAUTHORIZED.value(), "Missing or invalid token");
             return false;
         }
         try {
             Claims claims =  JWTUtility.getInstance().parseToken(token);
-            System.out.println("Subject: " + claims.getSubject());
             // You can perform additional validation or processing with the claims here
             // Add the claims to the request attributes to make them accessible to other components
             request.setAttribute("claims", claims);

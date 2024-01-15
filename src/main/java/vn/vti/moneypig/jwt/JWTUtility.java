@@ -44,7 +44,6 @@ public class JWTUtility {
         String tokenFix = token.replace("Bearer ", "");
         // Generate the secret key for HS512
         // Parse the JWT token
-        System.out.println("TOKEN::AXXXB:"+ tokenFix);
         return Jwts.parserBuilder()
                 .setSigningKey(secretKey)
                 .build()

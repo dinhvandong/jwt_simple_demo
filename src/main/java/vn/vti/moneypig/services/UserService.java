@@ -41,5 +41,19 @@ public class UserService {
         return optionalUser.orElse(null);
         //  return userRepository.findByUsername(username).get();
     }
+
+    public List<User> findAll()
+    {
+        return userRepository.findAll();
+    }
+
+    public User findById(Long id){
+        if(userRepository.findById(id).isPresent()){
+            userRepository.findById(id).get();
+        }
+        return null;
+    }
+
+
     // Add more methods as per your requirements
 }

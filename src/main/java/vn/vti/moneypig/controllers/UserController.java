@@ -13,40 +13,45 @@ import vn.vti.moneypig.jwt.JWTUtility;
 import vn.vti.moneypig.jwt.JwtInterceptor;
 import vn.vti.moneypig.models.User;
 import vn.vti.moneypig.repositories.UserRepository;
+import vn.vti.moneypig.services.UserService;
 
 import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
-
-    private final UserRepository userRepository;
-
+    private  final UserService userService;
     @Autowired
-    public UserController(UserRepository userRepository) {
-        this.userRepository = userRepository;
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
     @GetMapping("/findByToken")
     public ResponseEntity<?> findByToken(HttpServletRequest request) {
         String token = JwtInterceptor.getInstance().extractTokenFromRequest(request);
-        System.out.println("TOKEN:ACD:"+ token);
         if (token != null) {
-          //  String username = JwtInterceptor.getInstance().extractUsername(token);
             Claims claims =  JWTUtility.getInstance().parseToken(token);
             String username = claims.getSubject();
             if (username != null) {
-                Optional<User> user = userRepository.findByUsername(username);
-                if (user.isPresent()) {
-                    return ResponseEntity.ok(user);
+                User user = userService.findByUsername(username);
+                if (user != null) {
+                    return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(200, user,"user exist"));
                 }
             }
         }
-
-        return ResponseEntity.notFound().build();
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(201, null,"user not exist"));
+//        return ResponseEntity.notFound().build();
     }
 
-
-
-
-
+    @GetMapping("/findAll")
+    public ResponseEntity<?> findAll(){
+        return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(200, userService.findAll(),"success"));
+    }
+    @GetMapping("/findById")
+    public ResponseEntity<?> findById(@RequestParam Long id){
+        if(userService.findById(id) == null){
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(201, null,"user not exist"));
+        }else {
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseObject(200, userService.findById(id),"success"));
+        }
+    }
 }
