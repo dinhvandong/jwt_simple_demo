@@ -11,16 +11,18 @@ import vn.vti.moneypig.security.PasswordEncoder;
 @Service
 public class AuthService {
     private final UserRepository userRepository;
-//    private final PasswordEncoder passwordEncoder;
     @Autowired
     public AuthService(UserRepository userRepository) {
-//        this.passwordEncoder = passwordEncoder;
         this.userRepository = userRepository;
     }
 
     public String loginWithUsernameAndPassword(String username, String password) {
+        System.out.println("Username:"+ username);
         User user = userRepository.findByUsername(username).orElse(null);
-        if (user != null && PasswordEncoder.getInstance().matches(password, user.getPassword())) {
+        assert user != null;
+        System.out.println("Test_3:"+ user.toString());
+        if (PasswordEncoder.getInstance().matches(password, user.getPassword())) {
+            System.out.println("OK_1");
             return JWTUtility.getInstance().generateToken(username);
         }
         return null;

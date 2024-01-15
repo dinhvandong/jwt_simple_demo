@@ -35,11 +35,11 @@ public class PasswordEncoder {
     }
 
     public   boolean matches(String raw, String hasPassword){
+        System.out.println("RawPassword:"+ (raw));
+        System.out.println("HashPassword:"+ hasPassword);
 
-        if(encodePassword(raw).equals(hasPassword)){
-            return  true;
-        }
-        return  false;
+        System.out.println("EncodePassword:"+ encodePassword(raw));
+        return encodePassword(raw).equals(hasPassword);
     }
     public  String bytesToHex(byte[] bytes) {
         StringBuilder result = new StringBuilder();
