@@ -6,7 +6,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class User {
     @Id
     private Long id;
-
     @Transient
     public static final String SEQUENCE_NAME = "user_sequence";
     private String username;
@@ -15,7 +14,12 @@ public class User {
     private String googleId;
     private String phone;
     private int status;
-
+    private  int dateOfBirth;
+    private  int gender;
+    private String address;
+    private String avatar;
+    private Address workAddress;
+    private  String referCode;
     public User(Long id, String username, String email, String password, String googleId, String phone, int status) {
         this.id = id;
         this.username = username;
@@ -43,6 +47,14 @@ public class User {
 
     }
 
+    public String getReferCode() {
+        return referCode;
+    }
+
+    public void setReferCode(String referCode) {
+        this.referCode = referCode;
+    }
+
     @Override
     public String toString() {
         return "User{" +
@@ -54,6 +66,36 @@ public class User {
                 ", phone='" + phone + '\'' +
                 ", status=" + status +
                 '}';
+    }
+    public Address getWorkAddress() {
+        return workAddress;
+    }
+    public void setWorkAddress(Address workAddress) {
+        this.workAddress = workAddress;
+    }
+    public int getDateOfBirth() {
+        return dateOfBirth;
+    }
+    public void setDateOfBirth(int dateOfBirth) {
+        this.dateOfBirth = dateOfBirth;
+    }
+    public int getGender() {
+        return gender;
+    }
+    public void setGender(int gender) {
+        this.gender = gender;
+    }
+    public String getAddress() {
+        return address;
+    }
+    public void setAddress(String address) {
+        this.address = address;
+    }
+    public String getAvatar() {
+        return avatar;
+    }
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
     public Long getId() {
         return id;

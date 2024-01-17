@@ -5,18 +5,19 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import java.security.Key;
 import java.util.Date;
 
+@Component
 public class JwtInterceptor implements HandlerInterceptor {
     private static final String AUTHORIZATION_HEADER = "Authorization";
     private static final String TOKEN_PREFIX = "Bearer ";
-
-
-    private static JwtInterceptor instance;
+    private static volatile JwtInterceptor instance;
     // Private constructor to prevent instantiation from outside the class
     public JwtInterceptor() {
     }
@@ -62,27 +63,20 @@ public class JwtInterceptor implements HandlerInterceptor {
     public  String extractUsername(String token) {
         try {
             Claims claims =  JWTUtility.getInstance().parseToken(token);
-            System.out.println("Claims:"+ claims.getSubject());
             return  claims.getSubject();
         } catch (Exception e) {
             return null; // Token is invalid
         }
     }
 
-        public  boolean isValidToken(String token) {
+    public  boolean isValidToken(String token) {
         try {
-            System.out.println("Token0:"+ token);
             Claims claims =  JWTUtility.getInstance().parseToken(token);
             Date expirationDate = claims.getExpiration();
-            if(claims==null){
-                System.out.println("Claims null");
-            }else {
-                System.out.println(claims.getSubject());
-            }
+            String username = claims.getSubject();
             Date currentDate = new Date();
-            System.out.println("Token:"+   (expirationDate == null || !expirationDate.before(currentDate))); // Token has expired;
-            // Check if the token has expired
-            return (expirationDate == null || !expirationDate.before(currentDate)); // Token has expired
+            return (expirationDate == null || !expirationDate.before(currentDate)) &&
+                    JwtTokenStore.getInstance().isTokenPresent(username, token.replace("Bearer ", "")); // Token has expired
             // Token is valid and not expired
         } catch (Exception e) {
             return false; // Token is invalid

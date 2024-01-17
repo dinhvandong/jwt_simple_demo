@@ -21,9 +21,6 @@ public class Database {
                     service1.setServiceType("HHH");
                     serviceRepository.insert(service1);
                 }
-
-
-
             }
         };
     }

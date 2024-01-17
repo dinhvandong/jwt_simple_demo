@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vn.vti.moneypig.dto.ResponseObject;
 import vn.vti.moneypig.dto.UserDTO;
+import vn.vti.moneypig.jwt.JWTUtility;
+import vn.vti.moneypig.jwt.JwtTokenStore;
 import vn.vti.moneypig.models.User;
 import vn.vti.moneypig.repositories.UserRepository;
 import vn.vti.moneypig.security.PasswordEncoder;
@@ -52,6 +54,7 @@ public class AuthController {
                     .body(new ResponseObject(201, user, "Token invalid"));
         }
         String token = authService.loginWithUsernameAndPassword(userDTO.getUsername(), userDTO.getPassword());
+        JwtTokenStore.getInstance().storeToken(userDTO.getUsername(), token);
         return ResponseEntity.status(HttpStatus.OK).body
                 (new ResponseObject(200,user,token));
     }

@@ -32,9 +32,9 @@ public class UserService {
 
         return userResult;
     }
-    public User getUserById(Long id) {
-        return userRepository.findById(id).orElse(null);
-    }
+//    public User getUserById(Long id) {
+//        return userRepository.findById(id).orElse(null);
+//    }
     public User findByUsername(String username) {
         Optional<User> optionalUser = userRepository.findByUsername(username);
         System.out.println("OKOK");
@@ -52,6 +52,23 @@ public class UserService {
             userRepository.findById(id).get();
         }
         return null;
+    }
+
+    public Optional<User> getUserById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    public User updateUser(Long id, User updatedUser) {
+        Optional<User> existingUser = userRepository.findById(id);
+        if (existingUser.isPresent()) {
+            User user = existingUser.get();
+            user.setUsername(updatedUser.getUsername());
+            user.setEmail(updatedUser.getEmail());
+            // Update other fields if needed
+            return userRepository.save(user);
+        } else {
+            throw new IllegalArgumentException("User not found with id: " + id);
+        }
     }
 
 

@@ -2,6 +2,7 @@ package vn.vti.moneypig.jwt;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
@@ -10,6 +11,8 @@ import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
 import java.util.Date;
+
+@Component
 public class JWTUtility {
    final long expirationMs = 24 * 60 * 60 * 1000; // One day
    final String secret = "AGIUPVIEC38271980371248973242139847231047238473294712039487321948703";
@@ -57,11 +60,13 @@ public class JWTUtility {
         }
         return null;
     }
-
-    public  String extractUsername(String token) {
-        Claims claims = Jwts.parserBuilder()
-                .setSigningKey(secretKey)
-                .build().parseClaimsJws(token).getBody();
-        return claims.getSubject();
+    public String extractUsername(String token) {
+        return parseToken(token).getSubject();
     }
+//    public  String extractUsername(String token) {
+//        Claims claims = Jwts.parserBuilder()
+//                .setSigningKey(secretKey)
+//                .build().parseClaimsJws(token).getBody();
+//        return claims.getSubject();
+//    }
 }
